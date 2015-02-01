@@ -40,6 +40,7 @@ Jungtis tinklo modulio ENC28J60 pajungimui
  #include <EEPROM.h>
 #include "definitions.h"
 
+
 //______________________________________________________________________________________//
 // It is assumed that the LCD module is connected to
 // the following pins using a levelshifter to get the
@@ -60,33 +61,27 @@ extern uint8_t SmallFont[];
 //______________________________________________________________________________________//
 
 /* ------------------ R T C ---------------------- */
-#include <DS1307RTC.h>
-#include <Time.h>
-#include <Wire.h>
-
-boolean bBlink = true;
 /* --------------------- RTC END ---------------- */
 char *Nokia_LCD_string_1;                      // First string text displayed on the LCD
 char *Nokia_LCD_string_2;                      // Second string text displayed on the LCD
     boolean InMenu = false;
-/* --------------------- freeRam ---------------- */
 int freeRam () {
   extern int __heap_start, *__brkval;
   int v;
   return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
 }
-/* --------------------- freeRam END ---------------- */
+
 // --- create all of the options menu: ---------------------------------------
 // de facto create a MenuItem class objects, which inherit the class MenuBackend
 MenuBackend menu = MenuBackend(menuUseEvent,menuChangeEvent); // menu design
    //                        ("                ")
-   MenuItem P1 =  MenuItem(" KOLEKTORIUS  ",1);
+   MenuItem P1 =  MenuItem("  SILTNAMIS   ",1);
       MenuItem P11 = MenuItem("skirtumas on  ",2);
       MenuItem P12 = MenuItem("skirtumas off ",2);
       MenuItem P13 = MenuItem("siurblio ij   ",2);
 
 
-   MenuItem P2 = MenuItem(" TERMOSTATAS  ",1);//"TERMOSTATAS   "
+   MenuItem P2 = MenuItem("  LAISTYMAS   ",1);//"TERMOSTATAS   "
       MenuItem P21 = MenuItem("temperatura 1 ",2);//"temperatura 1 "
       MenuItem P22 = MenuItem("temperatura 2 ",2);//"temperatura 2 "
       MenuItem P23 = MenuItem("busena        ",2);//"Busena        "
@@ -157,10 +152,10 @@ void menuUseEvent(MenuUseEvent used)      // feature class MenuBackend - after p
            action=Read_keyboard(Key_Pin);//delay(300);   // odczyt stanu klawiatury - funkcja Klaviaturos_skaitymas lub czytaj_2 lub czytaj_3
                                             // opis ponizej przy 3 róznych definicjach funkcji czytaj
            if(Keyboard_change!=action)                    // ruszamy do pracy tylko wtedy gdy Keyboard_changeienil sie stan klawiatury
-             {if (action==3) {lcd_backlight++; analogWrite(BackLight_Pin,lcd_backlight*25);delay(300);}
+             {if (action==0) {lcd_backlight++; analogWrite(BackLight_Pin,lcd_backlight*25);delay(300);}
                // jesli akcja=1 (czyli wcisnieto klawisz w góre to zwiekszono temperature
                // ustawiono max próg i wyswietlono obecna temperature
-             if(action==0)  {lcd_backlight--;analogWrite(BackLight_Pin,lcd_backlight*25);delay(300);}
+             if(action==3)  {lcd_backlight--;analogWrite(BackLight_Pin,lcd_backlight*25);delay(300);}
 if (lcd_backlight > 10)  lcd_backlight = 1;
 if (lcd_backlight < 1)  lcd_backlight = 10;
             if (lcd_backlight < 10) myGLCD.print(" ",54,40);
@@ -240,8 +235,8 @@ Pump_power_off_difference =  MeniuFunkcija ("Parinkti= ", Pump_power_off_differe
                                            
            if(Keyboard_change!=action)          
              {
-if(action==3) {Manual_pump_status = false; myGLCD.print("off", RIGHT, 32);delay(200);}
-if(action==0) {Manual_pump_status = true;  myGLCD.print("on ", RIGHT, 32);delay(200);}
+if(action==0) {Manual_pump_status = false; myGLCD.print("off", RIGHT, 32);delay(200);}
+if(action==3) {Manual_pump_status = true;  myGLCD.print("on ", RIGHT, 32);delay(200);}
              if(action==4) // 0
                {
                  myGLCD.print(">siurblys OK  ", RIGHT, 32); delay(2000); // 0
@@ -278,14 +273,14 @@ if (used.item.getName() == "busena        ")
                                            
            if(Keyboard_change!=action)          
              {
-             if (action==3) {Thermostat_status++; if(Thermostat_status>3) Thermostat_status=1;
+             if (action==0) {Thermostat_status++; if(Thermostat_status>3) Thermostat_status=1;
 
                                                //  myGLCD.print(Busena(Thermostat_status,termostato_status_name));
                                                  if (Thermostat_status == 1) myGLCD.print("sildymas", RIGHT, 40); // heating
                                                  if (Thermostat_status == 2) myGLCD.print("saldymas", RIGHT, 40); // freezing
                                                  if (Thermostat_status == 3) myGLCD.print("isjungta", RIGHT, 40); // turned off
                                             delay(200);}
-             if(action==0)  {Thermostat_status--; if(Thermostat_status<1) Thermostat_status=3;
+             if(action==3)  {Thermostat_status--; if(Thermostat_status<1) Thermostat_status=3;
 
                                               //   myGLCD.print(Busena(Thermostat_status,termostato_status_name));
                                                  if (Thermostat_status == 1) myGLCD.print("sildymas", RIGHT, 40); // heating
@@ -320,8 +315,10 @@ void menuChangeEvent(MenuChangeEvent changed)  // funkcja klasy MenuBackend
     myGLCD.print("              ", 0, 32);
     myGLCD.print("              ", 0, 40);
    LCD_TFT_template();
-   TFT_Temperature_Imaging();
+//    Temperature_Imaging();
 
+
+    Temperature_Imaging();
   }
   /* it really is only useful here in shortkey and is used primarily to enrich the
   menu with arrow symbols depending on what is selected. Everything here is going
@@ -397,8 +394,15 @@ void setup()
     analogWrite(BackLight_Pin,255);
   myGLCD.InitLCD();
   myGLCD.setFont(SmallFont);
-  myGLCD.print("SauleVire.lt",CENTER,8);
- 
+  myGLCD.print("Valtunai.lt",CENTER,8);
+  digitalWrite(BackLight_Pin,HIGH);
+ delay(200);
+ digitalWrite(BackLight_Pin,LOW);
+ delay(200);
+ digitalWrite(BackLight_Pin,HIGH);
+ delay(200);
+ digitalWrite(BackLight_Pin,LOW);
+ delay(200);
     myGLCD.print("v1.3",CENTER,24);
   delay(5000);
  LoadConfig();
@@ -420,7 +424,7 @@ Serial.begin(9600);
   menuSetup();
   Temperature_measurements_1();
  
-// -- Temperature_Imaging();
+//  Temperature_Imaging();
     LCD_switching_on_Time = millis();
     temperature_measurement_time_1 = millis();
 //---------------------------------------------------------
@@ -432,7 +436,6 @@ LCD_TFT_template();
   myGLCD.clrScr();
 
 //---------------------------------------------------------
-setSyncProvider(RTC.get); 
   }  // setup() ...************ END **************...
   // ************************ START void loop() *******************************
 void loop()   
@@ -450,7 +453,7 @@ menu.moveUp();
 menu.getRoot();
     timerEnable = 0;
     LCD_TFT_template();
-    TFT_Temperature_Imaging();
+    Temperature_Imaging();
   } 
  
  
@@ -541,25 +544,7 @@ else{
      // If you do not need a second relay-mode off
      digitalWrite(Relay_Thermostat,HIGH);
  }
-
-//RTC.read(tm);
-
-//if(month() < 10) myGLCD.print("0", 0, 24);
-//myGLCD.printNumI(month(), 7, 24); //ekrane rodomas menuo, diena, laikas
-//if(day() < 10) myGLCD.print("0", 14, 24);
-//myGLCD.printNumI(day(), 14, 24);
-if(hour() < 10) {myGLCD.print("0", 0, 24); myGLCD.printNumI(hour(),6, 24);}
-  else myGLCD.printNumI(hour(),0, 24);
-bBlink = ((bBlink) ? false : true);
-if (bBlink)
-       myGLCD.print(":", 12, 24);
-    else
-       myGLCD.print(" ", 12, 24);
-if(minute() < 10) {myGLCD.print("0", 18, 24); myGLCD.printNumI(minute(), 24, 24);}
-  else {myGLCD.printNumI(minute(), 18, 24);}
-
-}
-// === END ===========================================================
+}// === END ===========================================================
 ////////////////////////////////////////////////////////////////////////
 void Temperature_measurements_1(){
   //____________________________ Start Sensor 1 _________________________________
@@ -593,7 +578,7 @@ myGLCD.print("Kolektor. ", 0, 0);
 myGLCD.print("Boileris  ", 0, 8);
 myGLCD.print("TermStat. ", 0, 16);
 myGLCD.invert(true);
-//myGLCD.print("______________", 0, 24);
+myGLCD.print("______________", 0, 24);
 myGLCD.invert(false);
 myGLCD.print("Siurblys", 0, 32);
    if (K-B>=Pump_power_on_difference) myGLCD.print("ON ", 60, 32);
@@ -604,6 +589,30 @@ myGLCD.print("T- ", 0, 40);
     if (Thermostat_status == 2) myGLCD.print("saldymas", 18, 40); // freezing
     if (Thermostat_status == 3) myGLCD.print("isjungta", 18, 40); // turned off
 }
+void Temperature_Imaging(){
+myGLCD.printNumF(K, 1,RIGHT, 0); if (K-B>0) {  myGLCD.print("+", RIGHT, 24);myGLCD.printNumF((K-B), 1, RIGHT, 24);}
+                                             else {myGLCD.printNumF((K-B), 1, LEFT, 24);}
+                             //     if (K-B>=Pump_power_on_difference)  {myGLCD.print("K",  LEFT, 9);} 
+                             //     if (K-B<=Pump_power_off_difference) {myGLCD.print("K", LEFT, 9);} 
+                                            
+ myGLCD.printNumF(B,1,LEFT,0);  myGLCD.printNumF(T,1,LEFT,0);//(int(K + 0.5));
+  if (Thermostat_status == 1)
+   {// If the heating mode (Thermostat_status = 1)
+    if (T <= temperature_1) {myGLCD.print("H",LEFT,0);} 
+    if (T >= temperature_2) {myGLCD.print("H",LEFT,0);} 
+   }
+   if (Thermostat_status == 2)
+    {// If the freezing mode (Thermostat_status = 2)
+     if (T >= temperature_1) {myGLCD.print("F",LEFT,0);} 
+     if (T <= temperature_2) {myGLCD.print("F",LEFT,0);} 
+    }
+    if (Thermostat_status == 3)
+     {myGLCD.print("off",LEFT,0);}
+}
+
+
+
+
 
 void TFT_Temperature_Imaging(){
 //  myGLCD.print("SauleVire.lt",CENTER,0);
@@ -626,10 +635,10 @@ void TFT_Temperature_Imaging(){
 //             action=go_out_from_menu(); 
            if(Keyboard_change!=action)          
              {
-             if (action==3) { Converted_Value++; if( Converted_Value>Max_Value)  Converted_Value=Max_Value; 
+             if (action==0) { Converted_Value++; if( Converted_Value>Max_Value)  Converted_Value=Max_Value; 
                                                     if( Converted_Value<10) myGLCD.print(" ",77,40);
                                                       myGLCD.printNumI( Converted_Value,70,40); delay(200);}
-             if(action==0)  { Converted_Value--; if( Converted_Value<Min_Value)  Converted_Value=Min_Value; 
+             if(action==3)  { Converted_Value--; if( Converted_Value<Min_Value)  Converted_Value=Min_Value; 
                                                      if( Converted_Value<10) myGLCD.print(" ",77,40);
                                                        myGLCD.printNumI( Converted_Value,70,40); delay(200);}
              if(action==4) // 0
@@ -713,15 +722,3 @@ return 4;
   return Read_keyboard(Key_Pin); 
  }
  } 
- ///////////////////////////////////////////////////
- 
-//void printDigits(int digits, char skirtukas)
-
-//{
-  // utility function for digital clock display: prints preceding colon and leading 0
-//  Serial.print("simbolis");
-//    myGLCD.print(skirtukas, 7, 32);
-//  if(digits < 10) myGLCD.print("0", 7, 32);
-//  myGLCD.printNumI(digits, 7, 32);
-
-//}
