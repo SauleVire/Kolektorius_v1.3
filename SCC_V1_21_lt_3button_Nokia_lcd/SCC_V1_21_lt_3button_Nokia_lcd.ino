@@ -420,7 +420,6 @@ Serial.begin(9600);
   menuSetup();
   Temperature_measurements_1();
  
-// -- Temperature_Imaging();
     LCD_switching_on_Time = millis();
     temperature_measurement_time_1 = millis();
 //---------------------------------------------------------
@@ -488,7 +487,17 @@ if (InMenu == false){
   LCD_Update_Time = millis() + LCD_Update_Interval;
   LCD_TFT_template();
   TFT_Temperature_Imaging();
-
+//********************************************************************
+if(hour() < 10) {myGLCD.print("0", 0, 24); myGLCD.printNumI(hour(),6, 24);}
+  else myGLCD.printNumI(hour(),0, 24);
+bBlink = ((bBlink) ? false : true);
+if (bBlink)
+       myGLCD.print(":", 12, 24);
+    else
+       myGLCD.print(" ", 12, 24);
+if(minute() < 10) {myGLCD.print("0", 18, 24); myGLCD.printNumI(minute(), 24, 24);}
+  else {myGLCD.printNumI(minute(), 18, 24);}
+//********************************************************************
   //#ifdef DEBUGSerialPrint
 //Serial.println("Temperate_measurement");
 //unsigned long start = millis();
@@ -528,36 +537,22 @@ else{
  }
     }
   if (Thermostat_status == 1)
-   {// If the heating mode (Thermostat_status = 1)
-    if (T <= temperature_1) digitalWrite(Relay_Thermostat,LOW); 
-    if (T >= temperature_2) digitalWrite(Relay_Thermostat,HIGH);
+   {// If the mode= heating (Thermostat_status = 1)
+    if (T <= temperature_1) analogWrite(Relay_Thermostat,LOW); 
+    if (T >= temperature_2) analogWrite(Relay_Thermostat,HIGH);
+Serial.print(T);Serial.print("-*-");Serial.print(temperature_1);Serial.println(" Status=1 ");
    }
    if (Thermostat_status == 2)
-    {// If the freezing mode (Thermostat_status = 2)
-     if (T >= temperature_1) digitalWrite(Relay_Thermostat,LOW); 
-     if (T <= temperature_2) digitalWrite(Relay_Thermostat,HIGH);
+    {// If the mode= freezing (Thermostat_status = 2)
+     if (T >= temperature_1) analogWrite(Relay_Thermostat,LOW); 
+     if (T <= temperature_2) analogWrite(Relay_Thermostat,HIGH);
+Serial.print(T);Serial.print("-*-");Serial.print(temperature_1);Serial.println(" Status=2 ");
     }
-    if (Thermostat_status == 3)
-     // If you do not need a second relay-mode off
-     digitalWrite(Relay_Thermostat,HIGH);
+    if (Thermostat_status == 3){
+     // If you do not need a second relay mode= off
+     analogWrite(Relay_Thermostat,HIGH);
+Serial.print(T);Serial.print("-*-");Serial.print(temperature_1);Serial.println(" Status=3 ");}
  }
-
-//RTC.read(tm);
-
-//if(month() < 10) myGLCD.print("0", 0, 24);
-//myGLCD.printNumI(month(), 7, 24); //ekrane rodomas menuo, diena, laikas
-//if(day() < 10) myGLCD.print("0", 14, 24);
-//myGLCD.printNumI(day(), 14, 24);
-if(hour() < 10) {myGLCD.print("0", 0, 24); myGLCD.printNumI(hour(),6, 24);}
-  else myGLCD.printNumI(hour(),0, 24);
-bBlink = ((bBlink) ? false : true);
-if (bBlink)
-       myGLCD.print(":", 12, 24);
-    else
-       myGLCD.print(" ", 12, 24);
-if(minute() < 10) {myGLCD.print("0", 18, 24); myGLCD.printNumI(minute(), 24, 24);}
-  else {myGLCD.printNumI(minute(), 18, 24);}
-
 }
 // === END ===========================================================
 ////////////////////////////////////////////////////////////////////////
