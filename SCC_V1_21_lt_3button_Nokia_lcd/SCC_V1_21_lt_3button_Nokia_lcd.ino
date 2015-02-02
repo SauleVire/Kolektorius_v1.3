@@ -88,8 +88,8 @@ MenuBackend menu = MenuBackend(menuUseEvent,menuChangeEvent); // menu design
 
    MenuItem P2 = MenuItem(" TERMOSTATAS  ",1);//"TERMOSTATAS   "
       MenuItem P21 = MenuItem("temperatura 1 ",2);//"temperatura 1 "
-      MenuItem P22 = MenuItem("temperatura 2 ",2);//"temperatura 2 "
-      MenuItem P23 = MenuItem("busena        ",2);//"Busena        "
+//      MenuItem P22 = MenuItem("temperatura 2 ",2);//"temperatura 2 "
+      MenuItem P22 = MenuItem("busena        ",2);//"Busena        "
 
 
    MenuItem P3 = MenuItem("  NUSTATYMAI  ",1);
@@ -114,8 +114,8 @@ void menuSetup()                       // feature class MenuBackend
      
       P2.add(P21);                     //
         P21.add(P22);P21.addLeft(P2);  //
-        P22.add(P23);P22.addLeft(P2);  //
-        P23.add(P21);P23.addLeft(P2);  //
+        P22.add(P21);P22.addLeft(P2);  //
+ //       P23.add(P21);P23.addLeft(P2);  //
 
       menu.getRoot().add(P3);
       P2.addRight(P3);                 //
@@ -257,8 +257,8 @@ if (used.item.getName() == "temperatura 1 ")   // exactly the same string "tempe
 temperature_1 =  MeniuFunkcija ("temp 1=    ", temperature_1, 99, -25, "Temperatura OK");
      ///////////////////////////////////////////////////////////////////
 /* __________________________ Termostat temperature 2  _______________________ */    
-if (used.item.getName() == "temperatura 2 ")   // exactly the same string "temperature 2 "
-temperature_2 =  MeniuFunkcija ("temp 2=    ", temperature_2, 99, -25, "Temperatura OK");
+//if (used.item.getName() == "temperatura 2 ")   // exactly the same string "temperature 2 "
+//temperature_2 =  MeniuFunkcija ("temp 2=    ", temperature_2, 99, -25, "Temperatura OK");
      ///////////////////////////////////////////////////////////////////    
 /* __________________________ Termostat status  _______________________ */    
 if (used.item.getName() == "busena        ")
@@ -482,12 +482,8 @@ Keyboard_change=buttonPressed;                 //Assign the value of x variable 
 //********************************************************************
 // If you are not currently within the menu is of a continuous program
 if (InMenu == false){
-  // time interval used for the LCD refresh
-  if (millis() > LCD_Update_Time ) {
-  LCD_Update_Time = millis() + LCD_Update_Interval;
-  LCD_TFT_template();
-  TFT_Temperature_Imaging();
-//********************************************************************
+  
+ //********************************************************************
 if(hour() < 10) {myGLCD.print("0", 0, 24); myGLCD.printNumI(hour(),6, 24);}
   else myGLCD.printNumI(hour(),0, 24);
 bBlink = ((bBlink) ? false : true);
@@ -498,6 +494,12 @@ if (bBlink)
 if(minute() < 10) {myGLCD.print("0", 18, 24); myGLCD.printNumI(minute(), 24, 24);}
   else {myGLCD.printNumI(minute(), 18, 24);}
 //********************************************************************
+  // time interval used for the LCD refresh
+  if (millis() > LCD_Update_Time ) {
+  LCD_Update_Time = millis() + LCD_Update_Interval;
+  LCD_TFT_template();
+  TFT_Temperature_Imaging();
+
   //#ifdef DEBUGSerialPrint
 //Serial.println("Temperate_measurement");
 //unsigned long start = millis();
@@ -538,19 +540,19 @@ else{
     }
   if (Thermostat_status == 1)
    {// If the mode= heating (Thermostat_status = 1)
-    if (T <= temperature_1) analogWrite(Relay_Thermostat,LOW); 
-    if (T >= temperature_2) analogWrite(Relay_Thermostat,HIGH);
-Serial.print(T);Serial.print("-*-");Serial.print(temperature_1);Serial.println(" Status=1 ");
+    if (T <= temperature_1) digitalWrite(Relay_Thermostat,LOW); 
+      else digitalWrite(Relay_Thermostat,HIGH);
+Serial.print(T);Serial.print("-*-");Serial.print(temperature_1);Serial.println(" Status=1 , sildymas ");
    }
    if (Thermostat_status == 2)
     {// If the mode= freezing (Thermostat_status = 2)
-     if (T >= temperature_1) analogWrite(Relay_Thermostat,LOW); 
-     if (T <= temperature_2) analogWrite(Relay_Thermostat,HIGH);
+     if (T >= temperature_1) digitalWrite(Relay_Thermostat,LOW); 
+       else digitalWrite(Relay_Thermostat,HIGH);
 Serial.print(T);Serial.print("-*-");Serial.print(temperature_1);Serial.println(" Status=2 ");
     }
     if (Thermostat_status == 3){
      // If you do not need a second relay mode= off
-     analogWrite(Relay_Thermostat,HIGH);
+     digitalWrite(Relay_Thermostat,HIGH);
 Serial.print(T);Serial.print("-*-");Serial.print(temperature_1);Serial.println(" Status=3 ");}
  }
 }
